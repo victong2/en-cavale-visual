@@ -15,7 +15,8 @@ def connect(config):
         # connecting to the PostgreSQL server
         return psycopg.connect(**config)
     except (psycopg.DatabaseError, Exception) as error:
-        print(error)
+        print(f"The error '{error}' occurred")
+        raise ConnectionError("Failed to connect to the database") from error
 
 
 def get_spending_by_country():

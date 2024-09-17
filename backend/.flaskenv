@@ -1,0 +1,2 @@
+FLASK_APP=encavale.py
+FLASK_DEBUG=1
