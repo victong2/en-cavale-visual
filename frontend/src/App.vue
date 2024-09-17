@@ -21,19 +21,9 @@ import HelloWorld from './components/HelloWorld.vue'
 </template> -->
 
 <template>
-  <h2>{{ name }}</h2>
-  <div>
-    <button v-on:click="changeName($event), increment(1, $event)">Change Name</button>
-  </div>
-  <h2>Count {{ count }}</h2>
-  <div>
-    <button v-on:click="increment(5, $event)">Increase counter (5)</button>
-    <button v-on:click="decrement(2)">Decrease counter</button>
-  </div>
   <div>
     <h1>Data from Backend</h1>
     <div v-if="error">{{ error }}</div>
-    <div v-if="data">{{ data }}</div>
     <div v-else>Loading...</div>
   </div>
   <PlotlyChart v-if="data" :data="chartData" :layout="chartLayout" />
@@ -67,7 +57,7 @@ export default {
     }
   },
   mounted() {
-    const url = '/api/spending/countries'
+    const url = '/api/spending/countries/'
     // Make an API call to your backend when the component is mounted
     axios
       .get(url)
