@@ -1,35 +1,4 @@
-<!-- <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script> -->
-
-<!-- <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
-</template> -->
-
 <template>
-  <h2>{{ name }}</h2>
-  <div>
-    <button v-on:click="changeName($event), increment(1, $event)">Change Name</button>
-  </div>
-  <h2>Count {{ count }}</h2>
-  <div>
-    <button v-on:click="increment(5, $event)">Increase counter (5)</button>
-    <button v-on:click="decrement(2)">Decrease counter</button>
-  </div>
   <div>
     <h1>Data from Backend</h1>
     <div v-if="error">{{ error }}</div>
@@ -41,7 +10,6 @@ import HelloWorld from './components/HelloWorld.vue'
 
 <script lang="ts">
 import axios from 'axios'
-// import HelloWorld from './components/HelloWorld.vue'
 
 import PlotlyChart from './components/PlotlyChart.vue'
 
@@ -50,24 +18,8 @@ export default {
   components: {
     PlotlyChart
   },
-  methods: {
-    changeName(event: Event) {
-      this.name = 'Batman'
-      console.log('Event', event)
-    },
-    add(a: number, b: number, c: number) {
-      return a + b + c
-    },
-    increment(num: number, event: Event) {
-      this.count += num
-      console.log('Event', event)
-    },
-    decrement(num: number) {
-      this.count -= num
-    }
-  },
   mounted() {
-    const url = '/api/spending/'
+    const url = '/api/spending/countries/'
     // Make an API call to your backend when the component is mounted
     axios
       .get(url)
@@ -85,8 +37,6 @@ export default {
   },
   data() {
     return {
-      count: 0,
-      name: 'Victor',
       data: null,
       error: null,
       chartData: [
