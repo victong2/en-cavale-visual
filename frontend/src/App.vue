@@ -67,7 +67,7 @@ export default {
     }
   },
   mounted() {
-    const url = '/api/spending/'
+    const url = '/api/spending/countries'
     // Make an API call to your backend when the component is mounted
     axios
       .get(url)
