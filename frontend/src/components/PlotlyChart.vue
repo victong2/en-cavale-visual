@@ -1,5 +1,5 @@
 <template>
-  <div ref="plotElement"></div>
+  <div ref="plotElement" class="full-screen-component"></div>
 </template>
 
 <script lang="ts">
@@ -16,6 +16,7 @@ export default {
   },
   methods: {
     renderChart() {
+      // @ts-ignore
       Plotly.newPlot(this.$refs.plotElement as HTMLElement, this.data, this.layout)
     }
   },
@@ -25,3 +26,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.full-screen-component {
+  height: 95vh; /* 100% of the viewport height */
+  width: 95vw; /* 100% of the viewport width */
+  display: flex; /* Optionally use flexbox to center content */
+  justify-content: center;
+  align-items: center;
+}
+</style>
