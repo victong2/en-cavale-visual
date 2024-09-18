@@ -1,11 +1,9 @@
 <template>
   <div>
-    <h1>Data from Backend</h1>
     <div v-if="error">{{ error }}</div>
-    <div v-if="data">{{ data }}</div>
-    <div v-else>Loading...</div>
   </div>
   <PlotlyChart v-if="data" :data="chartData" :layout="chartLayout" />
+  <div v-else>Loading...</div>
 </template>
 
 <script lang="ts">
