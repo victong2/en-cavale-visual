@@ -1,12 +1,25 @@
 # en-cavale visual
 
 Web application to visualize spendings during a year of travels.
+It is deployed on a small virtual private server (Ubuntu VPS) and accessible here: https://victorng.fr/
+
+![spendingplot](plot.png)
 
 ## Setup
 
 [pyenv](https://github.com/pyenv/pyenv) is _recommended_ to handle the Python version. We use Python 3.11.
 
+```shell
+pyenv install 3.10
+pyenv global 3.10
+```
+
 [Poetry](https://python-poetry.org/) is used for dependency management and virtual environment handling.
+
+```shell
+curl -sSL https://install.python-poetry.org | python3 -
+poetry install
+```
 
 Useful commands:
 
@@ -55,6 +68,10 @@ We use the default username `postgres`.
 To connect to the DB, We use the CLI tool `psql` and the web interface of adminer. **DBeaver** is also a recommended client.
 
 Data are imported from a Google sheet.
+
+## Deployment
+
+Details can be found [here](Deployment.md).
 
 ## TODO
 
