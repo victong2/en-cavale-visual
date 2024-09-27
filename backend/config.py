@@ -1,6 +1,21 @@
+import os
+from dotenv import load_dotenv
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, ".env"))
+
 from configparser import ConfigParser
 
 DB_FOLDER = "../db/"
+
+
+class Config:
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL environment variable is not set")
+
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL.replace("postgres://", "postgresql://")
 
 
 def load_config(filename="database.ini", section="postgresql"):

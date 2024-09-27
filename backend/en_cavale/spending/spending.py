@@ -1,7 +1,7 @@
 from datetime import timedelta
 import re
 import psycopg
-from en_cavale.config import load_config
+from config import load_config
 import plotly.express as px
 import pandas as pd
 
