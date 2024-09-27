@@ -4,21 +4,12 @@ import sqlalchemy.orm as so
 from en_cavale import db
 
 
-# class User(db.Model):
-#     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-#     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
-#     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
-#     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
-
-#     def __repr__(self):
-#         return "<User {}>".format(self.username)
-
-
 class Country(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(50))
     arrival: so.Mapped[sa.Date] = so.mapped_column(sa.Date)
     departure: so.Mapped[sa.Date] = so.mapped_column(sa.Date)
+    region: so.Mapped[Optional[str]] = so.mapped_column(sa.String(100))
 
     def __repr__(self):
         return "<Country {} from the {} to the{}>".format(
