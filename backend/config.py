@@ -6,7 +6,7 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 from configparser import ConfigParser
 
-DB_FOLDER = "../db/"
+DB_FOLDER = os.path.join(basedir, "../db/")
 
 
 class Config:

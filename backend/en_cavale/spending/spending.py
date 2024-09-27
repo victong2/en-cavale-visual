@@ -24,7 +24,7 @@ def get_spending_by_country():
     conn = connect(config)
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT * FROM countries")
+            cur.execute("SELECT * FROM country")
             print("The number of results: ", cur.rowcount)
             rows_countries = cur.fetchall()
 
@@ -35,8 +35,7 @@ def get_spending_by_country():
             spendingPerDay = {}
             spendingPerCountry = {}
             for row in rows:
-                date, money = row[1], row[2]
-                amount = float(re.sub("[^0-9|.]", "", money))
+                date, amount = row[1], float(row[2])
                 if date in spendingPerDay:
                     spendingPerDay[date] += amount
                 else:
