@@ -1,96 +1,72 @@
 from datetime import timedelta
 import re
 import psycopg
-from en_cavale.config import load_config
+from config import load_config
 import plotly.express as px
 import pandas as pd
+from en_cavale import db
+from en_cavale.models import Country, Spending
+
+from sqlalchemy import func
+from datetime import timedelta
+from collections import defaultdict
 
 
-def connect(config):
-    """Connect to the PostgreSQL database server
+def with_session(func):
+    def wrapper(*args, **kwargs):
+        with db.session() as session:
+            try:
+                return func(session, *args, **kwargs)
+            except Exception as error:
+                session.rollback()
+                print(f"Error occurred: {error}")
+                raise
 
-    Warning: Unlike file objects or other resources, exiting the connection’s with block doesn’t close the connection, but only the transaction associated to it. If you want to make sure the connection is closed after a certain point, you should still use a try-catch block:
+    return wrapper
+
+
+def get_spendings(session):
+    """Yield Spending records in batches to manage memory efficiently."""
+    return (spending for spending in session.query(Spending).yield_per(100))
+
+
+@with_session
+def get_spending_by_country(session):
     """
-    try:
-        # connecting to the PostgreSQL server
-        return psycopg.connect(**config)
-    except (psycopg.DatabaseError, Exception) as error:
-        print(f"The error '{error}' occurred")
-        raise ConnectionError("Failed to connect to the database") from error
+    Calculate average daily spending per country
+    """
+    countries = session.query(Country).all()
 
+    spendingPerDay = defaultdict(float)
+    spendingPerCountry = defaultdict(float)
 
-def get_spending_by_country():
-    config = load_config()
-    conn = connect(config)
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM countries")
-            print("The number of results: ", cur.rowcount)
-            rows_countries = cur.fetchall()
+    # Calculate spending per day
+    for spending in get_spendings(session):
+        spendingPerDay[spending.date] += float(spending.amount)
 
-            cur.execute("SELECT * FROM spending")
-            print("The number of results: ", cur.rowcount)
-            rows = cur.fetchall()
+    # Determine overlapping days. The date has been seen twice (or more).
+    # During overlapping days, money is spent in both countries.
+    overlapping = {}
+    for c in countries:
+        overlapping[c.arrival] = c.arrival in overlapping
+        overlapping[c.departure] = c.departure in overlapping
 
-            spendingPerDay = {}
-            spendingPerCountry = {}
-            for row in rows:
-                date, money = row[1], row[2]
-                amount = float(re.sub("[^0-9|.]", "", money))
-                if date in spendingPerDay:
-                    spendingPerDay[date] += amount
-                else:
-                    spendingPerDay[date] = amount
-            # print(spendingPerDay)
+    # Handle country spending per day and per country
+    for country in countries:
+        country_name = country.name
+        if country.region:
+            country_name += f": {country.region}"
 
-            # Spending per day
-            # Spending per country. How do you handle days in common? Half half
-            overlapping = {}
-            for row in rows_countries:
-                country, start, end = row[1], row[2], row[3]
-                if start in overlapping:
-                    overlapping[start] = True
-                else:
-                    overlapping[start] = False
-                if end in overlapping:
-                    overlapping[end] = True
-                else:
-                    overlapping[end] = False
+        delta_day = (country.departure - country.arrival).days
+        days = (country.arrival + timedelta(days=i) for i in range(delta_day + 1))
+        for day in days:
+            spendingPerCountry[country_name] += spendingPerDay.get(day, 0) / (
+                2 if overlapping.get(day) else 1
+            )
 
-            spendingPerCountryPerDays = {}
-            for row in rows_countries:
-                country, start, end, region = row[1], row[2], row[3], row[4]
-                # Edge case for countries reapparing multiple times.
-                country_name = country
-                if region:
-                    country_name += f": {region}"
-                spendingPerCountry[country_name] = 0
-                # Sum amount between date
-                # list days betwen dates
-                delta = end - start
-                for i in range(delta.days + 1):
-                    day = start + timedelta(days=i)
-                    # Avoid counting a day twice.
-                    if day in overlapping and overlapping[day]:
-                        spendingPerCountry[country_name] += spendingPerDay[day] / 2
-                    else:
-                        spendingPerCountry[country_name] += spendingPerDay[day]
-                # Spending per day and per country
-                spendingPerCountryPerDays[country_name] = (
-                    spendingPerCountry[country_name] / delta.days
-                )
+        spendingPerCountry[country_name] /= delta_day
 
-            print(spendingPerCountry)
-            print(spendingPerCountryPerDays)
-            return spendingPerCountryPerDays
-            # Spending per day and per country
-
-            # x days of the year. y spending per day.
-            # colors/layers for category
-            # handle countries appearing multiple times (China)
-
-    except (Exception, psycopg.DatabaseError) as error:
-        print(error)
+    return spendingPerCountry
 
 
 def draw_graph(spendingPerCountryPerDay):
@@ -100,6 +76,10 @@ def draw_graph(spendingPerCountryPerDay):
     fig.show()
 
 
+# Quickly visualize the graph.
+# Run this function inside `flask shell`:
+# >>> from en_cavale.spending.spending import start
+# >>> start()
 def start():
     spending = get_spending_by_country()
 
