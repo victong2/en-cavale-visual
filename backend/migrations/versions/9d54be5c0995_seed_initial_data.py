@@ -32,7 +32,7 @@ def upgrade():
         [
             {"name": "Hébergement"},
             {"name": "Visite"},
-            {"name": "Course"},
+            {"name": "Courses"},
             {"name": "Snack"},
             {"name": "Transport"},
             {"name": "Restaurant"},

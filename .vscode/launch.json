@@ -13,6 +13,22 @@
       "args": ["run", "--no-debugger", "--no-reload"],
       "jinja": true,
       "justMyCode": true
+    },
+    {
+      "name": "Flask: Import CSV",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "flask",
+      "args": [
+        "import-csv",
+        "spending.csv" // Replace with your CSV file path
+      ],
+      "env": {
+        "FLASK_APP": "en_cavale:create_app",
+        "FLASK_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
     }
   ]
 }
