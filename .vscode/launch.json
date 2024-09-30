@@ -29,6 +29,17 @@
       },
       "console": "integratedTerminal",
       "justMyCode": true
+    },
+    {
+      "name": "Flask Shell: Run start()",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/en_cavale/run_flask_shell.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "FLASK_ENV": "development"
+      }
     }
   ]
 }
