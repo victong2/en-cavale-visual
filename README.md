@@ -72,7 +72,3 @@ Data are imported from a Google sheet.
 ## Deployment
 
 Details can be found [here](Deployment.md).
-
-## TODO
-
-Apply migrations/versioning with Alembic or liquibase.
