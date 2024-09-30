@@ -36,6 +36,6 @@ class Spending(db.Model):
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
 
     def __repr__(self):
-        return "<Spending {} on {} for {} {}>".format(
-            self.date, self.category, self.amount, self.currency
+        return "<Spending {} on {} for {} {}, {}>".format(
+            self.date, self.category_id, self.amount, self.currency, self.description
         )

@@ -3,6 +3,7 @@ import re
 import psycopg
 from config import load_config
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 from en_cavale import db
 from en_cavale.models import Country, Spending
@@ -35,6 +36,7 @@ def get_spending_by_country(session):
     """
     Calculate average daily spending per country
     """
+    res = {}
     countries = session.query(Country).all()
 
     spendingPerDay = defaultdict(float)
@@ -64,15 +66,52 @@ def get_spending_by_country(session):
                 2 if overlapping.get(day) else 1
             )
 
-        spendingPerCountry[country_name] /= delta_day
+        res[country_name] = {
+            "spending": spendingPerCountry[country_name] / delta_day,
+            "arrival": country.arrival,
+            "departure": country.departure,
+        }
 
-    return spendingPerCountry
+    return res
 
 
 def draw_graph(spendingPerCountryPerDay):
-    print("draw graph")
     df = pd.DataFrame(data=spendingPerCountryPerDay)
-    fig = px.bar(df, x="country", y="spending")
+
+    # Convert arrival and departure columns to datetime
+    df["arrival"] = pd.to_datetime(df["arrival"])
+    df["departure"] = pd.to_datetime(df["departure"])
+
+    # Calculate the number of days spent in each country
+    # df["days_spent"] = (df["departure"] - df["arrival"]).dt.days - 1
+
+    fig = go.Figure()
+
+    # Create a bar for each day in each country
+    for _, row in df.iterrows():
+        date_range = pd.date_range(start=row["arrival"], end=row["departure"])
+        daily_spending = row["spending"]
+        fig.add_trace(
+            go.Bar(
+                x=date_range,
+                y=[daily_spending] * len(date_range),
+                name=row["country"],
+                text=[row["country"]] * len(date_range),
+                hovertemplate="%{text}<br>Date: %{x}<br>Daily Spending: %{y:.2f} $CAD",
+            )
+        )
+
+    # Update layout to improve visualization
+    fig.update_layout(
+        title="Daily Spending per Country Over Time",
+        xaxis_title="Date",
+        yaxis_title="Daily Spending in $CAD",
+        barmode="overlay",
+        legend_title="Countries",
+        # hovermode="x unified",
+        hovermode="closest",
+    )
+
     fig.show()
 
 
@@ -83,6 +122,14 @@ def draw_graph(spendingPerCountryPerDay):
 def start():
     spending = get_spending_by_country()
 
-    # This representation does not indicate how much time we spent in each country.
-    d = {"country": spending.keys(), "spending": spending.values()}
+    spending_list = [data["spending"] for data in spending.values()]
+    arrival = [data["arrival"] for data in spending.values()]
+    departure = [data["departure"] for data in spending.values()]
+
+    d = {
+        "country": spending.keys(),
+        "spending": spending_list,
+        "arrival": arrival,
+        "departure": departure,
+    }
     draw_graph(d)
